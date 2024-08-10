@@ -32,7 +32,6 @@
 
     .inputBox {
       margin: 50px auto;
-      text-align: center;
     }
 
     .inputBox button {
@@ -67,28 +66,17 @@
       outline: transparent;
       font-size: 16px;
     }
-
-    #canvas {
-      z-index: -1;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-    }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <canvas id="canvas"></canvas>
     <div class="main-content">
       <div class="get-v">
         <p>当前的电压为: <span></span></p>
       </div>
       <div class="inputBox">
-        <input class="custom-input" type="text" placeholder="请输入密码" autofocus>
-        <p></p>
+        <input class="custom-input" type="text" placeholder="请输入密码" autofocus><br>
         <button>op</button>
       </div>
     </div>
@@ -118,116 +106,6 @@
         console.log('请求失败');
       }
     })
-  </script>
-  <script>
-    const r180 = Math.PI
-    const r90 = Math.PI / 2
-    const r15 = Math.PI / 12
-    const color = '#88888825'
-
-    const { random } = Math
-    const size = {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    }
-
-    const MIN_BRANCH = 30;
-    let len = 6;
-    let stopped = false;
-    let steps = [];
-
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-
-    function initCanvas(width, height) {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      canvas.width = dpr * width;
-      canvas.height = dpr * height;
-      ctx.scale(dpr, dpr);
-    }
-
-    function polar2cart(x, y, r, theta) {
-      const dx = r * Math.cos(theta);
-      const dy = r * Math.sin(theta);
-      return [x + dx, y + dy];
-    }
-
-    function step(x, y, rad, counter = { value: 0 }) {
-      const length = Math.random() * len;
-      counter.value += 1;
-
-      const [nx, ny] = polar2cart(x, y, length, rad);
-
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(nx, ny);
-      ctx.stroke();
-
-      const rad1 = rad + Math.random() * (Math.PI / 12);
-      const rad2 = rad - Math.random() * (Math.PI / 12);
-
-      if (nx < -100 || nx > canvas.width + 100 || ny < -100 || ny > canvas.height + 100)
-        return;
-
-      const rate = counter.value <= MIN_BRANCH ? 0.8 : 0.5;
-
-      if (Math.random() < rate)
-        steps.push(() => step(nx, ny, rad1, counter));
-
-      if (Math.random() < rate)
-        steps.push(() => step(nx, ny, rad2, counter));
-    }
-
-    function start() {
-      stopped = false;
-      steps.length = 0;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#88888825';
-
-      const middleRandom = () => Math.random() * 0.6 + 0.2;
-
-      steps.push(() => step(middleRandom() * canvas.width, -5, Math.PI / 2));
-      steps.push(() => step(middleRandom() * canvas.width, canvas.height + 5, -Math.PI / 2));
-      steps.push(() => step(-5, middleRandom() * canvas.height, 0));
-      steps.push(() => step(canvas.width + 5, middleRandom() * canvas.height, Math.PI));
-
-      if (canvas.width < 500)
-        steps.splice(2, 2);
-
-      const interval = setInterval(() => {
-        if (stopped) {
-          clearInterval(interval);
-          return;
-        }
-        const prevSteps = steps.slice();
-        steps.length = 0;
-
-        if (!prevSteps.length) {
-          stopped = true;
-          return;
-        }
-
-        prevSteps.forEach((i) => {
-          if (Math.random() < 0.5)
-            steps.push(i);
-          else
-            i();
-        });
-      }, 250 / 40);
-    }
-
-    function resizeCanvas() {
-      const { width, height } = canvas.getBoundingClientRect();
-      initCanvas(width, height);
-    }
-
-    window.addEventListener('resize', resizeCanvas);
-
-    initCanvas(window.innerWidth, window.innerHeight);
-    start();
   </script>
 </body>
 
